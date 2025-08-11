@@ -242,7 +242,7 @@ class ComprehensiveUSBPDParser:
 
 def main():
     # UPDATE THIS PATH TO YOUR PDF FILE
-    pdf_file = r"C:\Users\SRUDHI\Desktop\toc assement\USB_Parser\USB.pdf"
+    pdf_file = r"C:\Users\SRUDHI\Desktop\toc assement\USB.pdf"
     
     if not os.path.isfile(pdf_file):
         print(f"PDF not found: {pdf_file}")

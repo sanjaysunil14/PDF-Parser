@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "USB PD ToC Entry Schema",
+  "type": "object",
+  "properties": {
+    "section_id": {
+      "type": "string",
+      "pattern": "^\\d+(\\.\\d+)*$",
+      "description": "Hierarchical section identifier (e.g., '2.1.2')"
+    },
+    "title": {
+      "type": "string",
+      "description": "Section title without numbering"
+    },
+    "page": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Starting page number of the section"
+    },
+    "level": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Depth level (chapter = 1, section = 2, etc.)"
+    },
+    "parent_id": {
+      "type": ["string", "null"],
+      "description": "Immediate parent section (null for top level)"
+    },
+    "full_path": {
+      "type": "string",
+      "description": "Concatenation of section_id and title"
+    },
+    "doc_title": {
+      "type": "string",
+      "description": "Document name or version for reference"
+    },
+    "tags": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Semantic labels (e.g., ['negotiation', 'contracts'])"
+    }
+  },
+  "required": ["section_id", "title", "page", "level", "full_path", "doc_title", "tags"],
+  "additionalProperties": false
+}

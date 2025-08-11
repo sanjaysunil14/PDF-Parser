@@ -1,0 +1,29 @@
+{
+  "document_id": "usb_pd_spec_v1",
+  "document_title": "Universal Serial Bus Power Delivery Specification",
+  "document_version": "1.0",
+  "total_pages": 579,
+  "total_sections": 2720,
+  "total_tables": 661,
+  "total_figures": 963,
+  "extraction_date": "2025-08-11T12:18:05.708730",
+  "processing_stats": {
+    "sections_parsed": 2720,
+    "sections_failed": 0,
+    "tables_extracted": 661,
+    "figures_extracted": 963
+  },
+  "document_structure": {
+    "max_depth": 3,
+    "level_distribution": {
+      "2": 56,
+      "3": 183
+    },
+    "page_distribution": {
+      "1-50": 44,
+      "51-100": 187,
+      "101-200": 456,
+      "201+": 2033
+    }
+  }
+}
