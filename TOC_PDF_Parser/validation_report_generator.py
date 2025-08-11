@@ -12,8 +12,8 @@ class ValidationReportGenerator:
         self.metadata = {}
         
     def load_data(self):
-        """Load data from JSONL files"""
-        # Load TOC data
+        
+        
         try:
             with open("usb_pd_toc.jsonl", "r", encoding="utf-8") as f:
                 for line in f:
@@ -22,7 +22,7 @@ class ValidationReportGenerator:
         except FileNotFoundError:
             print("Warning: usb_pd_toc.jsonl not found")
         
-        # Load content data
+        
         try:
             with open("usb_pd_spec.jsonl", "r", encoding="utf-8") as f:
                 for line in f:
@@ -31,7 +31,7 @@ class ValidationReportGenerator:
         except FileNotFoundError:
             print("Warning: usb_pd_spec.jsonl not found")
         
-        # Load metadata
+        
         try:
             with open("usb_pd_metadata.jsonl", "r", encoding="utf-8") as f:
                 self.metadata = json.load(f)
@@ -39,7 +39,7 @@ class ValidationReportGenerator:
             print("Warning: usb_pd_metadata.jsonl not found")
     
     def analyze_validation(self):
-        """Analyze differences between TOC and parsed content"""
+        
         validation_results = {
             "toc_sections": len(self.toc_data),
             "parsed_sections": len(self.content_data),
@@ -53,16 +53,16 @@ class ValidationReportGenerator:
             "figure_counts": self.count_figures()
         }
         
-        # Create lookup dictionaries
+        
         toc_lookup = {entry["section_id"]: entry for entry in self.toc_data}
         content_lookup = {section["section_id"]: section for section in self.content_data}
         
-        # Check matches and mismatches
+        
         for toc_entry in self.toc_data:
             section_id = toc_entry["section_id"]
             if section_id in content_lookup:
                 validation_results["matches"] += 1
-                # Check for order errors or page mismatches
+                
                 content_section = content_lookup[section_id]
                 if abs(toc_entry["page"] - content_section.get("page_start", toc_entry["page"])) > 2:
                     validation_results["order_errors"].append({
@@ -78,7 +78,7 @@ class ValidationReportGenerator:
                     "page": toc_entry["page"]
                 })
         
-        # Check for extra sections in content
+        
         for content_section in self.content_data:
             section_id = content_section["section_id"]
             if section_id not in toc_lookup:
@@ -91,16 +91,16 @@ class ValidationReportGenerator:
         return validation_results
     
     def count_tables(self):
-        """Count tables in content vs TOC references"""
+        
         toc_table_count = 0
         content_table_count = 0
         
-        # Count table references in TOC titles
+        
         for entry in self.toc_data:
             if "table" in entry["title"].lower():
                 toc_table_count += 1
         
-        # Count actual tables found in content
+        
         for section in self.content_data:
             content_table_count += len(section.get("tables", []))
         
@@ -111,16 +111,16 @@ class ValidationReportGenerator:
         }
     
     def count_figures(self):
-        """Count figures in content vs TOC references"""
+        
         toc_figure_count = 0
         content_figure_count = 0
         
-        # Count figure references in TOC titles
+        
         for entry in self.toc_data:
             if "figure" in entry["title"].lower():
                 toc_figure_count += 1
         
-        # Count actual figures found in content
+       
         for section in self.content_data:
             content_figure_count += len(section.get("figures", []))
         
@@ -131,26 +131,26 @@ class ValidationReportGenerator:
         }
     
     def generate_excel_report(self, filename="usb_pd_validation_report.xlsx"):
-        """Generate comprehensive validation report in Excel format"""
+        
         validation_results = self.analyze_validation()
         
         wb = openpyxl.Workbook()
-        wb.remove(wb.active)  # Remove default sheet
+        wb.remove(wb.active)  
         
-        # Define styles
+        
         header_font = Font(bold=True, color="FFFFFF")
         header_fill = PatternFill(start_color="366092", end_color="366092", fill_type="solid")
         error_fill = PatternFill(start_color="FFC7CE", end_color="FFC7CE", fill_type="solid")
         success_fill = PatternFill(start_color="C6EFCE", end_color="C6EFCE", fill_type="solid")
         warning_fill = PatternFill(start_color="FFEB9C", end_color="FFEB9C", fill_type="solid")
         
-        # 1. Summary Sheet
+        
         summary_sheet = wb.create_sheet("Summary")
         summary_sheet.append(["USB PD Specification Validation Report"])
         summary_sheet.append([f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"])
         summary_sheet.append([])
         
-        # Overall statistics
+        
         summary_sheet.append(["Metric", "Expected (TOC)", "Actual (Parsed)", "Status"])
         summary_sheet.append(["Total Sections", validation_results["toc_sections"], 
                              validation_results["parsed_sections"], 
@@ -161,19 +161,19 @@ class ValidationReportGenerator:
         summary_sheet.append(["Order Errors", "", len(validation_results["order_errors"]), ""])
         summary_sheet.append([])
         
-        # Table and figure counts
+       
         summary_sheet.append(["Tables (TOC References)", validation_results["table_counts"]["toc_references"], 
                              validation_results["table_counts"]["content_found"], ""])
         summary_sheet.append(["Figures (TOC References)", validation_results["figure_counts"]["toc_references"], 
                              validation_results["figure_counts"]["content_found"], ""])
         
-        # Apply styles to summary sheet
+        
         for row in range(1, summary_sheet.max_row + 1):
             for col in range(1, 5):
                 cell = summary_sheet.cell(row=row, column=col)
-                if row == 1:  # Title
+                if row == 1:  
                     cell.font = Font(bold=True, size=16)
-                elif row == 4:  # Header row
+                elif row == 4:  
                     cell.font = header_font
                     cell.fill = header_fill
                 elif col == 4 and cell.value == "MISMATCH":
@@ -181,7 +181,7 @@ class ValidationReportGenerator:
                 elif col == 4 and cell.value == "MATCH":
                     cell.fill = success_fill
         
-        # Auto-adjust column widths for all sheets
+
         for sheet in wb.worksheets:
             for column in sheet.columns:
                 max_length = 0
@@ -195,7 +195,7 @@ class ValidationReportGenerator:
                 adjusted_width = min(max_length + 2, 50)
                 sheet.column_dimensions[column_letter].width = adjusted_width
         
-        # Save the workbook
+
         wb.save(filename)
         print(f"Validation report saved to {filename}")
         

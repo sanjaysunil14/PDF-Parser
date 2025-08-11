@@ -16,7 +16,7 @@ class ComprehensiveUSBPDParser:
         self.figures = []
         
     def extract_toc(self) -> List[Dict]:
-        """Extract Table of Contents"""
+        
         toc_entries = []
         toc_patterns = [
             re.compile(r"^(\d+(?:\.\d+)*?)\s+(.+?)\s+\.{2,}\s*(\d+)$"),
@@ -30,7 +30,7 @@ class ComprehensiveUSBPDParser:
                     continue
                     
                 if "Table of Contents" in text or "Contents" in text:
-                    # Extract TOC from this and next few pages
+                    
                     for j in range(i, min(i + 10, len(pdf.pages))):
                         pg_text = pdf.pages[j].extract_text()
                         if not pg_text:
@@ -68,7 +68,7 @@ class ComprehensiveUSBPDParser:
         return toc_entries
     
     def extract_all_sections(self) -> List[Dict]:
-        """Extract content from all sections in the PDF"""
+        
         content_sections = []
         
         with pdfplumber.open(self.pdf_path) as pdf:
@@ -87,17 +87,16 @@ class ComprehensiveUSBPDParser:
                     if not clean_line:
                         continue
                     
-                    # Check if this line starts a new section
+                    
                     match = section_pattern.match(clean_line)
-                    if match and len(clean_line) < 100:  # Likely a section header
-                        # Save previous section if exists
+                    if match and len(clean_line) < 100: 
                         if current_section:
                             current_section["content"] = current_content.strip()
                             current_section["page_end"] = page_num - 1
                             current_section["word_count"] = len(current_content.split())
                             content_sections.append(current_section)
                         
-                        # Start new section
+                        
                         section_id, title = match.groups()
                         current_section = {
                             "section_id": section_id,
@@ -114,11 +113,11 @@ class ComprehensiveUSBPDParser:
                         }
                         current_content = ""
                     else:
-                        # Add to current section content
+                        
                         if current_section:
                             current_content += " " + clean_line
                         
-                        # Check for tables
+                        
                         if "Table" in clean_line and any(c.isdigit() for c in clean_line):
                             if current_section:
                                 table_info = {
@@ -130,7 +129,7 @@ class ComprehensiveUSBPDParser:
                                 current_section["tables"].append(table_info)
                                 self.tables.append(table_info)
                         
-                        # Check for figures
+                        
                         if "Figure" in clean_line and any(c.isdigit() for c in clean_line):
                             if current_section:
                                 figure_info = {
@@ -141,7 +140,7 @@ class ComprehensiveUSBPDParser:
                                 current_section["figures"].append(figure_info)
                                 self.figures.append(figure_info)
             
-            # Don't forget the last section
+            
             if current_section:
                 current_section["content"] = current_content.strip()
                 current_section["word_count"] = len(current_content.split())
@@ -151,7 +150,7 @@ class ComprehensiveUSBPDParser:
         return content_sections
     
     def generate_metadata(self) -> Dict:
-        """Generate document metadata"""
+        
         with pdfplumber.open(self.pdf_path) as pdf:
             total_pages = len(pdf.pages)
         
@@ -181,7 +180,7 @@ class ComprehensiveUSBPDParser:
         return metadata
     
     def generate_tags(self, title: str) -> List[str]:
-        """Generate semantic tags from title"""
+        
         keywords = {
             "contract": "contracts", "negotiation": "negotiation", "device": "devices",
             "communication": "communication", "avoidance": "avoidance", "cable": "cable",
@@ -193,7 +192,6 @@ class ComprehensiveUSBPDParser:
         return [tag for keyword, tag in keywords.items() if keyword in title_lower]
     
     def get_level_distribution(self) -> Dict:
-        """Get distribution of sections by level"""
         distribution = {}
         for entry in self.toc_entries:
             level = str(entry["level"])
@@ -201,7 +199,6 @@ class ComprehensiveUSBPDParser:
         return distribution
     
     def get_page_distribution(self) -> Dict:
-        """Get distribution of sections by page ranges"""
         if not self.content_sections:
             return {}
         
@@ -219,20 +216,16 @@ class ComprehensiveUSBPDParser:
         return page_ranges
     
     def save_all_outputs(self):
-        """Save all required JSONL files"""
-        # 1. usb_pd_toc.jsonl (Table of Contents)
         with open("usb_pd_toc.jsonl", "w", encoding="utf-8") as f:
             for entry in self.toc_entries:
                 json.dump(entry, f, ensure_ascii=False)
                 f.write("\n")
         
-        # 2. usb_pd_spec.jsonl (All content sections)
         with open("usb_pd_spec.jsonl", "w", encoding="utf-8") as f:
             for section in self.content_sections:
                 json.dump(section, f, ensure_ascii=False)
                 f.write("\n")
         
-        # 3. usb_pd_metadata.jsonl (Document metadata)
         with open("usb_pd_metadata.jsonl", "w", encoding="utf-8") as f:
             json.dump(self.metadata, f, ensure_ascii=False, indent=2)
         
@@ -241,7 +234,6 @@ class ComprehensiveUSBPDParser:
         print(f"Saved metadata to usb_pd_metadata.jsonl")
 
 def main():
-    # UPDATE THIS PATH TO YOUR PDF FILE
     pdf_file = r"C:\Users\SRUDHI\Desktop\toc assement\USB.pdf"
     
     if not os.path.isfile(pdf_file):
