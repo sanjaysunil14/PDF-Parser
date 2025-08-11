@@ -3,7 +3,7 @@ import re
 import json
 import os
 
-PDF_FILE = r"C:\Users\SRUDHI\Desktop\toc assement\USB_Parser\USB.pdf"
+PDF_FILE = r"C:\Users\SRUDHI\Desktop\toc assement\USB.pdf"
 DOC_TITLE = "Universal Serial Bus Power Delivery Specification"
 
 # --- Multiple regex patterns for robustness ---
@@ -97,7 +97,7 @@ def main():
     with open("unmatched_lines.txt", "w", encoding="utf-8") as f:
         f.write("\n".join(unmatched))
 
-    print(f"✅ Parsed {len(entries)} TOC entries. Unmatched: {len(unmatched)}")
+    print(f"Parsed {len(entries)} TOC entries. Unmatched: {len(unmatched)}")
 
 if __name__ == "__main__":
     main()
