@@ -1,9 +1,17 @@
+import warnings
+import logging
+
+# Suppress the specific warning from pdfminer (used internally by pdfplumber)
+warnings.filterwarnings("ignore", message="Cannot set gray non-stroke color.*")
+logging.getLogger("pdfminer").setLevel(logging.ERROR)
+
 import pdfplumber
 import re
 import json
 import os
 from datetime import datetime
 from typing import List, Dict, Optional
+
 
 class ComprehensiveUSBPDParser:
     def __init__(self, pdf_path: str):
@@ -19,7 +27,7 @@ class ComprehensiveUSBPDParser:
         
         toc_entries = []
         toc_patterns = [
-            re.compile(r"^(\d+(?:\.\d+)*?)\s+(.+?)\s+\.{2,}\s*(\d+)$"),
+            re.compile(r"^(\d+(?:\.\d+)*?)\s+(.+?)\.{2,}\s*(\d+)$"),
             re.compile(r"^(\d+(?:\.\d+)*?)\s+(.+?)\s+(\d+)$")
         ]
         
@@ -62,6 +70,7 @@ class ComprehensiveUSBPDParser:
                                     }
                                     toc_entries.append(entry)
                                     break
+                        # Stop after processing the ToC pages
                     break
         
         self.toc_entries = toc_entries
@@ -79,6 +88,7 @@ class ComprehensiveUSBPDParser:
             for page_num, page in enumerate(pdf.pages, 1):
                 text = page.extract_text()
                 if not text:
+                    print(f"⚠️ No text extracted on page {page_num}")
                     continue
                     
                 lines = text.split('\n')
@@ -87,15 +97,13 @@ class ComprehensiveUSBPDParser:
                     if not clean_line:
                         continue
                     
-                    
                     match = section_pattern.match(clean_line)
-                    if match and len(clean_line) < 100: 
+                    if match and len(clean_line) < 100:
                         if current_section:
                             current_section["content"] = current_content.strip()
                             current_section["page_end"] = page_num - 1
                             current_section["word_count"] = len(current_content.split())
                             content_sections.append(current_section)
-                        
                         
                         section_id, title = match.groups()
                         current_section = {
@@ -117,7 +125,6 @@ class ComprehensiveUSBPDParser:
                         if current_section:
                             current_content += " " + clean_line
                         
-                        
                         if "Table" in clean_line and any(c.isdigit() for c in clean_line):
                             if current_section:
                                 table_info = {
@@ -129,7 +136,6 @@ class ComprehensiveUSBPDParser:
                                 current_section["tables"].append(table_info)
                                 self.tables.append(table_info)
                         
-                        
                         if "Figure" in clean_line and any(c.isdigit() for c in clean_line):
                             if current_section:
                                 figure_info = {
@@ -139,7 +145,6 @@ class ComprehensiveUSBPDParser:
                                 }
                                 current_section["figures"].append(figure_info)
                                 self.figures.append(figure_info)
-            
             
             if current_section:
                 current_section["content"] = current_content.strip()
@@ -233,8 +238,9 @@ class ComprehensiveUSBPDParser:
         print(f"Saved {len(self.content_sections)} content sections to usb_pd_spec.jsonl")
         print(f"Saved metadata to usb_pd_metadata.jsonl")
 
+
 def main():
-    pdf_file = r"C:\Users\SRUDHI\Desktop\toc assement\USB.pdf"
+    pdf_file = r"C:\\Users\\SRUDHI\\Desktop\\toc assement\\USB.pdf"
     
     if not os.path.isfile(pdf_file):
         print(f"PDF not found: {pdf_file}")
@@ -259,6 +265,7 @@ def main():
     print(f"- Content sections: {len(content_sections)}")
     print(f"- Tables found: {len(parser.tables)}")
     print(f"- Figures found: {len(parser.figures)}")
+
 
 if __name__ == "__main__":
     main()
