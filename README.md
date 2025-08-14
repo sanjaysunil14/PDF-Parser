@@ -14,12 +14,19 @@ It is designed to:
 ## **Project Structure**
 
 ├── comprehensive_usb_parser.py      # Main parser – extracts TOC, content, metadata
+
 ├── validation_report_generator.py    # Compares TOC & parsed content, generates XLS report
+
 ├── toc_search_engine.py              # Search tool for TOC entries
+
 ├── usb_pd_toc.jsonl                  # Generated TOC entries
+
 ├── usb_pd_spec.jsonl                 # Generated parsed content
+
 ├── usb_pd_metadata.jsonl             # Generated document metadata
+
 ├── usb_pd_validation_report.xlsx     # Generated validation report
+
 └── README.md                         # This file
 
 
@@ -28,8 +35,8 @@ It is designed to:
 -Python 3.8+  
 -Install dependencies:
 --bash
---pdfplumber 
---openpyxl
+--pdfplumber -– PDF text extraction  
+--openpyxl  -– Excel report generation 
 
 
 ## **Usage**
@@ -61,7 +68,7 @@ Sample search features:
 - Keyword search (`Power`, `Cable`, etc.)
 - Filter by section level
 - Filter by page range
-- View children or full hierarchy path
+- Hierarchy Navigation – View child sections or full path 
 
 
 
